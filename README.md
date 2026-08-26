@@ -85,6 +85,7 @@ winget install PostgreSQL.PostgreSQL.16
 & "C:\Program Files\PostgreSQL\16\bin\createdb.exe" -U postgres ponto
 ```
 
+Ajuste o `16` para a versão instalada — qualquer uma da 14 para cima serve.
 Use `devlocal` como senha do usuário `postgres` na instalação, que é a do
 `.env.example`. O Postgres fica como serviço do Windows e sobe sozinho — não
 tem o passo de ligar o banco.

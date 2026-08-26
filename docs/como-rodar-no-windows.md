@@ -71,8 +71,13 @@ winget install PostgreSQL.PostgreSQL.16
 
 Sem winget, baixe pelo site: em
 [postgresql.org/download/windows](https://www.postgresql.org/download/windows/)
-clique em *Download the installer*, e na linha do **PostgreSQL 16**, coluna
-**Windows x86-64**, clique em *Download*. Rode o `.exe`.
+clique em *Download the installer*, e na coluna **Windows x86-64** da versão
+que preferir, clique em *Download*. Rode o `.exe`.
+
+**Qualquer versão da 14 para cima serve** — 16, 17 ou 18. A migration usa só
+DDL comum (tabelas, enums, chaves estrangeiras e índices), sem nada específico
+de versão, e o `timestamp` sem fuso, que é o ponto sensível deste projeto, se
+comporta igual em todas.
 
 No instalador:
 
@@ -138,15 +143,26 @@ Tem que responder `claude/timesheet-mysql-postgres-migration-f480zs`.
 
 ### Caminho A — Postgres direto
 
-O serviço já está no ar desde a instalação. Só falta criar o banco:
+O serviço já está no ar desde a instalação. Só falta criar o banco. Troque o
+`18` pela versão que você instalou:
 
 ```powershell
-& "C:\Program Files\PostgreSQL\16\bin\createdb.exe" -U postgres ponto
+& "C:\Program Files\PostgreSQL\18\bin\createdb.exe" -U postgres ponto
 ```
 
 Ele pede a senha que você definiu na instalação (`devlocal`). Sem mensagem de
 erro, deu certo. **Isso é só uma vez** — nas próximas o banco já existe e o
 serviço sobe junto com o Windows.
+
+Não sabe a versão? Liste a pasta:
+
+```powershell
+Get-ChildItem "C:\Program Files\PostgreSQL"
+```
+
+> **Se você usou outra senha** que não `devlocal`, abra o `.env` e ajuste a
+> linha `DATABASE_URL` antes de seguir:
+> `postgres://postgres:SUA_SENHA@localhost:5432/ponto`
 
 ### Caminho B — Docker
 
@@ -264,7 +280,8 @@ npm run validar amostras/Registo_de_comparec_.txt
 | `Conflict. The container name "/ponto-db" is already in use` | O container já foi criado antes | `docker start ponto-db`, e siga do passo 5 |
 | `ECONNREFUSED 127.0.0.1:5432` | O banco não está no ar | Caminho B: `docker start ponto-db`. Caminho A: abra "Serviços" do Windows e veja se `postgresql-x64-16` está em execução |
 | `winget` responde `\` e volta ao prompt sem instalar nada | Ou o nome do pacote está errado, ou o winget está quebrado | Teste com `winget search git`: se não imprimir tabela, o winget está quebrado — baixe pelos sites oficiais. Se imprimir, era só o nome (o do Docker é `Docker.DockerDesktop`) |
-| `password authentication failed for user "postgres"` | A senha do Postgres não é a do `.env` | Ou reinstale usando `devlocal`, ou edite a `DATABASE_URL` no `.env` com a senha que você definiu |
+| `password authentication failed for user "postgres"` | A senha do Postgres não é a do `.env` | Edite a `DATABASE_URL` no `.env` com a senha que você definiu na instalação |
+| `O termo '...createdb.exe' não é reconhecido` ou caminho inexistente | A pasta da versão é outra | `Get-ChildItem "C:\Program Files\PostgreSQL"` mostra o número certo |
 | `database "ponto" does not exist` | Faltou criar o banco | Refaça o passo 4 |
 | `DATABASE_URL não definida` | Faltou criar o `.env` | `cp .env.example .env` |
 | `fatal: repository not found` | Login do GitHub sem acesso ao repositório | Confirme que entrou com a conta que tem acesso ao `Papieri/ponto-digital` |
