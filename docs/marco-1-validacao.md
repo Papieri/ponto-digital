@@ -52,6 +52,17 @@ validação foi repetida em três fusos, com resultado idêntico:
 | `Asia/Tokyo` | +09 | as seis linhas |
 | `Pacific/Kiritimati` | +14 | as seis linhas |
 
+### Confirmado em máquina de produção
+
+Agosto de 2026, na máquina do setor financeiro da Papieri — **Windows 11,
+PostgreSQL 18, fuso `America/Sao_Paulo`**, contra o Linux/UTC/PostgreSQL 16 do
+desenvolvimento. As seis linhas saíram idênticas, incluindo os valores em reais,
+e as 122 batidas foram gravadas e relidas sem deslocamento.
+
+É a prova que os testes com `TZ` forçado só simulavam: sistema operacional
+diferente, versão de banco diferente e fuso −03 real, sem uma batida deslocada.
+A troca de MySQL para Postgres não mexeu na apuração.
+
 ---
 
 ## O que quase quebrou: o driver, não o ORM

@@ -246,6 +246,18 @@ npm run db:migrate
 
 Esperado: `migrations applied successfully!`
 
+> **Se essa linha não aparecer, não conclua que falhou.** O drizzle-kit apaga a
+> linha do cursor giratório ao terminar, e em alguns consoles do Windows a
+> mensagem de sucesso vai junto — a migration rodou do mesmo jeito. Para
+> confirmar, liste as tabelas:
+>
+> ```powershell
+> & "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d ponto -c "\dt"
+> ```
+>
+> Sete tabelas (`daily_summaries`, `employees`, `import_batches`,
+> `payroll_periods`, `period_adjustments`, `time_records`, `users`) = tudo certo.
+
 ---
 
 ## Passo 7 · Rodar os testes
@@ -330,3 +342,7 @@ npm run validar amostras/Registo_de_comparec_.txt
 
 Nenhuma biblioteca do projeto compila código nativo, então **não** é preciso
 instalar Visual Studio nem build tools.
+
+O aviso `npm warn allow-scripts` do npm 11 também não atrapalha: os scripts de
+instalação do esbuild não rodam, e ainda assim o `tsx`, o `vitest` e o
+`drizzle-kit` funcionam. Confirmado numa instalação limpa no Windows.
