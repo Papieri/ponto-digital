@@ -50,17 +50,43 @@ permissão — pode aceitar.
 ```powershell
 winget install OpenJS.NodeJS.LTS
 winget install Git.Git
-winget install Docker.Desktop
 ```
+
+Para o banco, escolha **um** dos dois caminhos abaixo. Qualquer um serve: a
+migration é Postgres puro, sem recurso de fornecedor.
+
+**Caminho A — Postgres direto (mais simples no Windows):**
+
+```powershell
+winget install PostgreSQL.PostgreSQL.16
+```
+
+Durante a instalação ele pede uma senha para o usuário `postgres`. **Use
+`devlocal`** — é a que já está no `.env.example`, e assim nada mais precisa ser
+ajustado. Aceite o resto do padrão, inclusive a porta 5432.
+
+O Postgres vira um serviço do Windows e sobe sozinho com o computador. Não tem
+o "ligar o banco" do passo 4.
+
+**Caminho B — Docker Desktop:**
+
+```powershell
+winget install Docker.DockerDesktop
+```
+
+Exige WSL2 e virtualização habilitada na BIOS, e costuma pedir reinicialização
+do computador na primeira instalação.
+
+> **Atenção ao nome do pacote:** é `Docker.DockerDesktop`. Com o nome errado, o
+> winget não acha nada e sai sem mensagem clara, parecendo que instalou.
+> Na dúvida, `winget search docker` lista os IDs disponíveis.
 
 Depois de instalar, **feche o PowerShell e abra de novo**. Sem isso ele não
 enxerga os programas novos. Aí repita o passo 1 para conferir.
 
-> **O Docker Desktop pode pedir para reiniciar o computador** na primeira
-> instalação, porque ele liga o WSL2 do Windows. Reinicie se ele pedir.
-
 > Se o `winget` não existir na sua máquina, baixe pelos sites oficiais:
 > [Node.js](https://nodejs.org/) · [Git](https://git-scm.com/download/win) ·
+> [PostgreSQL](https://www.postgresql.org/download/windows/) ·
 > [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 
 ---
@@ -90,7 +116,21 @@ Tem que responder `claude/timesheet-mysql-postgres-migration-f480zs`.
 
 ---
 
-## Passo 4 · Ligar o banco de dados
+## Passo 4 · Criar o banco
+
+### Caminho A — Postgres direto
+
+O serviço já está no ar desde a instalação. Só falta criar o banco:
+
+```powershell
+& "C:\Program Files\PostgreSQL\16\bin\createdb.exe" -U postgres ponto
+```
+
+Ele pede a senha que você definiu na instalação (`devlocal`). Sem mensagem de
+erro, deu certo. **Isso é só uma vez** — nas próximas o banco já existe e o
+serviço sobe junto com o Windows.
+
+### Caminho B — Docker
 
 Primeiro **abra o Docker Desktop** pelo Menu Iniciar e espere ele terminar de
 subir — o ícone da baleia, embaixo à direita, para de se mexer quando está
@@ -190,7 +230,7 @@ Já instalado, é só isto:
 
 ```powershell
 cd $HOME\Documents\ponto-digital
-docker start ponto-db
+docker start ponto-db     # só no caminho B; no A o serviço já sobe sozinho
 npm run validar amostras/Registo_de_comparec_.txt
 ```
 
@@ -204,7 +244,10 @@ npm run validar amostras/Registo_de_comparec_.txt
 | `error during connect` ou `cannot connect to the Docker daemon` | Docker Desktop não está rodando | Abra o Docker Desktop e espere a baleia parar de se mexer |
 | `port is already allocated` | Já existe algo na porta 5432 | `docker start ponto-db` — provavelmente o container já existe |
 | `Conflict. The container name "/ponto-db" is already in use` | O container já foi criado antes | `docker start ponto-db`, e siga do passo 5 |
-| `ECONNREFUSED 127.0.0.1:5432` | O banco não está no ar | `docker start ponto-db` e tente de novo |
+| `ECONNREFUSED 127.0.0.1:5432` | O banco não está no ar | Caminho B: `docker start ponto-db`. Caminho A: abra "Serviços" do Windows e veja se `postgresql-x64-16` está em execução |
+| `winget` responde `\` e volta ao prompt sem instalar nada | Nome do pacote errado | Confira com `winget search <nome>`. O do Docker é `Docker.DockerDesktop` |
+| `password authentication failed for user "postgres"` | A senha do Postgres não é a do `.env` | Ou reinstale usando `devlocal`, ou edite a `DATABASE_URL` no `.env` com a senha que você definiu |
+| `database "ponto" does not exist` | Faltou criar o banco | Refaça o passo 4 |
 | `DATABASE_URL não definida` | Faltou criar o `.env` | `cp .env.example .env` |
 | `fatal: repository not found` | Login do GitHub sem acesso ao repositório | Confirme que entrou com a conta que tem acesso ao `Papieri/ponto-digital` |
 | `\` sozinho numa linha e o cursor esperando | Comando colado com quebra de linha do Linux | Aperte Ctrl+C e cole o comando em uma linha só |

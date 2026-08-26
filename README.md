@@ -78,13 +78,16 @@ O container só precisa ser criado uma vez. Depois é `docker start ponto-db`.
 A migration é Postgres puro, sem recurso de fornecedor: qualquer Postgres 16
 serve, basta existir um banco chamado `ponto` alcançável pela `DATABASE_URL`.
 
-**Windows:** instale o PostgreSQL pelo instalador oficial de
-[postgresql.org](https://www.postgresql.org/download/windows/), e crie o banco
-pelo pgAdmin ou pelo psql:
+**Windows:**
 
 ```powershell
-createdb -U postgres ponto
+winget install PostgreSQL.PostgreSQL.16
+& "C:\Program Files\PostgreSQL\16\bin\createdb.exe" -U postgres ponto
 ```
+
+Use `devlocal` como senha do usuário `postgres` na instalação, que é a do
+`.env.example`. O Postgres fica como serviço do Windows e sobe sozinho — não
+tem o passo de ligar o banco.
 
 **Debian ou Ubuntu** (é o caminho usado no container onde este projeto foi
 validado, quando o registry do Docker está bloqueado):
