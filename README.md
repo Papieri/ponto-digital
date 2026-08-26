@@ -45,7 +45,20 @@ Saída atual de `npm run validar amostras/Registo_de_comparec_.txt`:
 
 ## Como rodar
 
+Precisa de **Node 22+** e de um **Postgres 16**. No Windows, use o
+**PowerShell** — não o CMD, que não tem `cp` e usa outra sintaxe de
+continuação de linha. Quem estiver no WSL segue os blocos de Linux.
+
 ### 1. Postgres local
+
+**Windows (PowerShell)** — tudo numa linha, porque a quebra com `\` é sintaxe
+de shell Unix:
+
+```powershell
+docker run -d --name ponto-db -e POSTGRES_PASSWORD=devlocal -e POSTGRES_DB=ponto -p 5432:5432 postgres:16
+```
+
+**Linux, macOS ou WSL:**
 
 ```bash
 docker run -d --name ponto-db \
@@ -54,8 +67,24 @@ docker run -d --name ponto-db \
   -p 5432:5432 postgres:16
 ```
 
-Sem Docker, um Postgres 16 nativo serve igual — a migration é Postgres puro,
-sem recurso de fornecedor:
+O container só precisa ser criado uma vez. Depois é `docker start ponto-db`.
+
+<details>
+<summary>Sem Docker</summary>
+
+A migration é Postgres puro, sem recurso de fornecedor: qualquer Postgres 16
+serve, basta existir um banco chamado `ponto` alcançável pela `DATABASE_URL`.
+
+**Windows:** instale o PostgreSQL pelo instalador oficial de
+[postgresql.org](https://www.postgresql.org/download/windows/), e crie o banco
+pelo pgAdmin ou pelo psql:
+
+```powershell
+createdb -U postgres ponto
+```
+
+**Debian ou Ubuntu** (é o caminho usado no container onde este projeto foi
+validado, quando o registry do Docker está bloqueado):
 
 ```bash
 pg_ctlcluster 16 main start
@@ -63,30 +92,46 @@ su postgres -c "psql -c \"ALTER USER postgres WITH PASSWORD 'devlocal';\""
 su postgres -c "createdb ponto"
 ```
 
+</details>
+
 ### 2. Ambiente e dependências
 
-```bash
+```powershell
 cp .env.example .env
 npm install
 ```
 
+No CMD, `cp` não existe — seria `copy .env.example .env`. No PowerShell e no
+Linux o comando acima funciona como está.
+
 ### 3. Migration
 
-```bash
+```powershell
 npm run db:migrate
 ```
 
 ### 4. Testes e validação
 
-```bash
+```powershell
 npm test
-npm run seed:colaboradores   # taxas de amostra, para os valores saírem do zero
+npm run seed:colaboradores
 npm run validar amostras/Registo_de_comparec_.txt
 ```
 
+O `seed:colaboradores` cadastra taxas de amostra, para os valores saírem do
+zero. As barras normais no caminho do arquivo funcionam também no Windows.
+
 `validar` importa o TXT, grava tudo no banco, relê e imprime a tabela. O lote é
-descartado ao final para o comando ser repetível — use `MANTER_LOTE=1` para
-inspecionar os dados depois.
+descartado ao final para o comando ser repetível. Para inspecionar os dados
+depois, mantenha o lote:
+
+```powershell
+$env:MANTER_LOTE=1; npm run validar amostras/Registo_de_comparec_.txt
+```
+
+```bash
+MANTER_LOTE=1 npm run validar amostras/Registo_de_comparec_.txt   # Linux, macOS, WSL
+```
 
 ---
 
