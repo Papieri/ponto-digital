@@ -49,6 +49,9 @@ Precisa de **Node 22+** e de um **Postgres 16**. No Windows, use o
 **PowerShell** — não o CMD, que não tem `cp` e usa outra sintaxe de
 continuação de linha. Quem estiver no WSL segue os blocos de Linux.
 
+> Primeira vez, no Windows, e sem nada instalado? Tem um passo a passo do zero
+> em [`docs/como-rodar-no-windows.md`](./docs/como-rodar-no-windows.md).
+
 ### 1. Postgres local
 
 **Windows (PowerShell)** — tudo numa linha, porque a quebra com `\` é sintaxe
@@ -156,6 +159,7 @@ MANTER_LOTE=1 npm run validar amostras/Registo_de_comparec_.txt   # Linux, macOS
 | `docs/ponto_digital_especificacao.md` | Especificação completa |
 | `docs/marco-1-validacao.md` | Relato da validação do marco 1 |
 | `docs/correcoes-secao-6.md` | Relato das correções da seção 6 |
+| `docs/como-rodar-no-windows.md` | Passo a passo do zero, para Windows |
 | `drizzle/schema.ts` | Schema Postgres |
 | `drizzle/migrations/` | Migration + journal do drizzle-kit |
 | `src/server/timesheetParser.ts` | Parser e apuração — portado byte a byte |
