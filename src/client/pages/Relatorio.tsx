@@ -225,7 +225,7 @@ export default function Relatorio() {
             <CardContent className="pt-5">
               <p className="text-xs text-muted-foreground">{c.rotulo}</p>
               <p
-                className={`tabular mt-1 text-xl font-semibold ${
+                className={`valor-destaque mt-1 text-2xl ${
                   c.destaque ? "text-emerald-700" : ""
                 }`}
               >

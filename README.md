@@ -218,6 +218,7 @@ MANTER_LOTE=1 npm run validar amostras/Registo_de_comparec_.txt   # Linux, macOS
 | `src/server/edicaoDia.ts` | Edição manual das batidas e recálculo do dia |
 | `src/server/planilha.ts` | Geração do arquivo Excel |
 | `src/client/` | Telas: Lotes, Colaboradores, Importar e Relatório |
+| `src/client/index.css` | Tipografia e cores. Leia antes de trocar a fonte. |
 | `instalador/` | Instalador e atalho para Windows |
 | `scripts/validar.ts` | Script do `npm run validar` |
 | `amostras/` | TXT do relógio e CSV de fechamento reais |

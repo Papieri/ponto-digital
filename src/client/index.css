@@ -1,3 +1,8 @@
+/* Fontes embutidas no programa, não baixadas da internet: o app precisa abrir
+   sem rede, e fonte carregada de fora aparece trocada enquanto baixa. */
+@import "@fontsource-variable/dm-sans";
+@import "@fontsource-variable/newsreader";
+
 @import "tailwindcss";
 
 @theme {
@@ -9,16 +14,35 @@
   --color-primary: oklch(0.55 0.18 258);
   --color-primary-foreground: oklch(1 0 0);
   --color-destructive: oklch(0.58 0.21 27);
+
+  /* Interface em DM Sans; valores em destaque em Newsreader. */
+  --font-sans: "DM Sans Variable", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-serif: "Newsreader Variable", ui-serif, Georgia, serif;
 }
 
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Tabular numbers: colunas de dinheiro e horas alinham na vertical. */
+/* Colunas de horas e de dinheiro precisam alinhar na vertical: número
+   desalinhado é número que se lê errado.
+   MEDIDO: o DM Sans não traz algarismos de largura fixa — o "1" sai bem mais
+   estreito que o "0" e o `tabular-nums` não faz efeito nenhum. O Newsreader
+   traz, e nesta combinação ele já é a fonte dos valores. Por isso as colunas
+   numéricas usam a serifada. */
 .tabular {
+  font-family: var(--font-serif);
   font-variant-numeric: tabular-nums;
-  font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
+  font-size: 0.97em;
+}
+
+/* O número grande dos cartões de total. */
+.valor-destaque {
+  font-family: var(--font-serif);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
