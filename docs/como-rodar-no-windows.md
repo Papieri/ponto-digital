@@ -15,6 +15,16 @@ programas pede elevação, e o Windows pergunta sozinho na hora.
 
 **Não** use o Prompt de Comando (CMD): ele não entende vários comandos daqui.
 
+Se os acentos aparecerem embaralhados (`CodificaþÒo` no lugar de `Codificação`),
+é a página de código antiga do console. Rode uma vez por janela:
+
+```powershell
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+```
+
+Isso afeta só o que você lê na tela — os números e os dados gravados no banco
+estão corretos de qualquer jeito.
+
 ---
 
 ## Passo 1 · Ver o que já está instalado
@@ -219,6 +229,13 @@ npm install
 O `npm install` baixa as bibliotecas e demora um ou dois minutos. Pode aparecer
 aviso de `vulnerabilities` no fim — normal, não atrapalha.
 
+> **Se a senha do Postgres não for `devlocal`**, ajuste o `.env` antes de
+> seguir, trocando `SUA_SENHA` pela que você definiu na instalação:
+>
+> ```powershell
+> (Get-Content .env) -replace 'devlocal','SUA_SENHA' | Set-Content .env
+> ```
+
 ---
 
 ## Passo 6 · Criar as tabelas
@@ -307,6 +324,7 @@ npm run validar amostras/Registo_de_comparec_.txt
 | `O termo '...createdb.exe' não é reconhecido` ou caminho inexistente | A pasta da versão é outra | `Get-ChildItem "C:\Program Files\PostgreSQL"` mostra o número certo |
 | `database "ponto" does not exist` | Faltou criar o banco | Refaça o passo 4 |
 | `DATABASE_URL não definida` | Faltou criar o `.env` | `cp .env.example .env` |
+| Acentos embaralhados na tela (`PrivilÚgios`, `Perìodo`) | Página de código antiga do console | `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8`. Só a exibição é afetada, os dados estão certos |
 | `fatal: repository not found` | Login do GitHub sem acesso ao repositório | Confirme que entrou com a conta que tem acesso ao `Papieri/ponto-digital` |
 | `\` sozinho numa linha e o cursor esperando | Comando colado com quebra de linha do Linux | Aperte Ctrl+C e cole o comando em uma linha só |
 
