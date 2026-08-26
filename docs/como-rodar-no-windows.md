@@ -154,6 +154,27 @@ Ele pede a senha que você definiu na instalação (`devlocal`). Sem mensagem de
 erro, deu certo. **Isso é só uma vez** — nas próximas o banco já existe e o
 serviço sobe junto com o Windows.
 
+> **A senha não aparece enquanto você digita.** Nem asteriscos, nem pontinhos,
+> nem cursor andando — parece que o teclado travou, e não travou. É proposital,
+> para ninguém ler a senha por cima do ombro. Digite no escuro e aperte Enter.
+
+Para não passar por esse prompt às cegas, informe a senha antes:
+
+```powershell
+$env:PGPASSWORD = "devlocal"
+& "C:\Program Files\PostgreSQL\18\bin\createdb.exe" -U postgres ponto
+```
+
+A variável vale só nessa janela do PowerShell e some quando você a fecha.
+
+Confira que o banco existe:
+
+```powershell
+& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -l
+```
+
+Procure `ponto` na lista. Se aparecer, está pronto.
+
 Não sabe a versão? Liste a pasta:
 
 ```powershell
@@ -281,6 +302,8 @@ npm run validar amostras/Registo_de_comparec_.txt
 | `ECONNREFUSED 127.0.0.1:5432` | O banco não está no ar | Caminho B: `docker start ponto-db`. Caminho A: abra "Serviços" do Windows e veja se `postgresql-x64-16` está em execução |
 | `winget` responde `\` e volta ao prompt sem instalar nada | Ou o nome do pacote está errado, ou o winget está quebrado | Teste com `winget search git`: se não imprimir tabela, o winget está quebrado — baixe pelos sites oficiais. Se imprimir, era só o nome (o do Docker é `Docker.DockerDesktop`) |
 | `password authentication failed for user "postgres"` | A senha do Postgres não é a do `.env` | Edite a `DATABASE_URL` no `.env` com a senha que você definiu na instalação |
+| Pede `Senha:` e digitar não faz nada aparecer | Nada de errado — a digitação é invisível de propósito | Digite às cegas e aperte Enter, ou use `$env:PGPASSWORD` antes do comando |
+| `database "ponto" already exists` | O banco já tinha sido criado numa tentativa anterior | Nada a fazer, siga para o passo 5 |
 | `O termo '...createdb.exe' não é reconhecido` ou caminho inexistente | A pasta da versão é outra | `Get-ChildItem "C:\Program Files\PostgreSQL"` mostra o número certo |
 | `database "ponto" does not exist` | Faltou criar o banco | Refaça o passo 4 |
 | `DATABASE_URL não definida` | Faltou criar o `.env` | `cp .env.example .env` |
