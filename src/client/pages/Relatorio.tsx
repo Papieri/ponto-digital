@@ -16,7 +16,9 @@ import {
   Download,
   FileText,
   Info,
+  Pencil,
   RefreshCw,
+  Table2,
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -26,6 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import EditarBatidasDia from "@/components/EditarBatidasDia";
 
 function Situacao({ status }: { status: string }) {
   if (status === "ok")
@@ -67,6 +70,12 @@ export default function Relatorio() {
   const [, navegar] = useLocation();
   const utils = trpc.useUtils();
   const [aba, setAba] = useState("resumo");
+  const [editando, setEditando] = useState<{
+    employeeCode: number;
+    employeeName: string;
+    department: string;
+    workDate: string;
+  } | null>(null);
 
   const { data: lote } = trpc.import.getById.useQuery({ id: batchId });
   const { data: periodos, isLoading } = trpc.import.getPayrollPeriods.useQuery({ batchId });
@@ -183,6 +192,15 @@ export default function Relatorio() {
           >
             <RefreshCw className={`h-4 w-4 ${recalcular.isPending ? "animate-spin" : ""}`} />
             Recalcular valores
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => {
+              window.location.href = `/api/lote/${batchId}/planilha.xlsx`;
+            }}
+          >
+            <Table2 className="h-4 w-4" />
+            Baixar Excel
           </Button>
           <Button variant="outline" size="sm" onClick={exportarResumo}>
             <Download className="h-4 w-4" />
@@ -372,6 +390,7 @@ export default function Relatorio() {
                             <th className="px-2 py-2 text-center font-medium">Saída</th>
                             <th className="px-2 py-2 text-center font-medium">Horas</th>
                             <th className="px-2 py-2 text-left font-medium">Observação</th>
+                            <th className="px-2 py-2 text-center font-medium">Editar</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -400,6 +419,23 @@ export default function Relatorio() {
                               >
                                 {d.issueDescription ?? "—"}
                               </td>
+                              <td className="px-2 py-2 text-center">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  title="Editar as batidas deste dia"
+                                  onClick={() =>
+                                    setEditando({
+                                      employeeCode: p.employeeCode,
+                                      employeeName: p.employeeName,
+                                      department: "PRODUCAO",
+                                      workDate: d.workDate.slice(0, 10),
+                                    })
+                                  }
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -412,6 +448,18 @@ export default function Relatorio() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {editando && (
+        <EditarBatidasDia
+          aberto
+          aoFechar={() => setEditando(null)}
+          batchId={batchId}
+          employeeCode={editando.employeeCode}
+          employeeName={editando.employeeName}
+          department={editando.department}
+          workDate={editando.workDate}
+        />
+      )}
     </div>
   );
 }

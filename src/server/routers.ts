@@ -19,10 +19,12 @@ import {
   getPayrollPeriodsByBatch,
   getPayrollPeriodSummary,
   getTimeRecordsByBatch,
+  getTimeRecordsByEmployeeAndDate,
   updateImportBatch,
   upsertEmployee,
 } from "./db";
 import { importarConteudoTxt, recalcularValores } from "./importarPonto";
+import { acrescentarBatida, recalcularDia, removerBatida } from "./edicaoDia";
 import { DiasEmAbertoError, PeriodoInvalidoError } from "./correcoes";
 import { StorageDiscoLocal } from "./storage";
 
@@ -32,6 +34,9 @@ const storage = new StorageDiscoLocal();
 const timestampUtc = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/, "Use 'YYYY-MM-DD HH:MM:SS'");
+
+/** 'YYYY-MM-DD' */
+const diaIso = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use 'YYYY-MM-DD'");
 
 /** Valor monetário como string, do jeito que o Postgres `numeric` espera. */
 const valorMonetario = z
@@ -217,6 +222,69 @@ const importRouter = router({
       await updateImportBatch(input.batchId, { status: "completed" });
       return { batchId: input.batchId, diasEmAbertoConfirmados: emAberto.length };
     }),
+
+  // ─── Edição manual de batidas ───────────────────────────────────────────
+  // É o que fecha um dia em aberto (6.4) sem recorrer ao SQL.
+
+  getDayRecords: publicProcedure
+    .input(
+      z.object({
+        batchId: z.number().int(),
+        employeeCode: z.number().int(),
+        workDate: diaIso,
+      })
+    )
+    .query(({ input }) =>
+      getTimeRecordsByEmployeeAndDate(input.batchId, input.employeeCode, input.workDate)
+    ),
+
+  addRecord: protectedProcedure
+    .input(
+      z.object({
+        batchId: z.number().int(),
+        employeeCode: z.number().int(),
+        employeeName: z.string().min(1),
+        department: z.string().default("PRODUCAO"),
+        workDate: diaIso,
+        /** 'HH:MM', lido como UTC — sem conversão de fuso */
+        horario: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, "Use HH:MM"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        return await acrescentarBatida(input);
+      } catch (erro) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: erro instanceof Error ? erro.message : "Falha ao incluir a batida.",
+        });
+      }
+    }),
+
+  removeRecord: protectedProcedure
+    .input(z.object({ recordId: z.number().int() }))
+    .mutation(async ({ input }) => {
+      try {
+        return await removerBatida(input.recordId);
+      } catch (erro) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: erro instanceof Error ? erro.message : "Falha ao remover a batida.",
+        });
+      }
+    }),
+
+  recalcularDia: protectedProcedure
+    .input(
+      z.object({
+        batchId: z.number().int(),
+        employeeCode: z.number().int(),
+        workDate: diaIso,
+      })
+    )
+    .mutation(({ input }) =>
+      recalcularDia(input.batchId, input.employeeCode, input.workDate)
+    ),
 
   delete: protectedProcedure
     .input(z.object({ batchId: z.number().int() }))

@@ -13,9 +13,14 @@ infraestrutura própria — MySQL/TiDB sai, Postgres entra.
 
 ## Estado atual
 
-**Aplicação com telas.** Cadastro de colaboradores, importação do TXT e
-relatório de fechamento com os valores por pessoa. `npm run dev` sobe API e
-telas juntas em http://127.0.0.1:5173.
+**Aplicação com telas.** Cadastro de colaboradores, importação do TXT,
+relatório de fechamento com os valores por pessoa, **edição manual das batidas
+do dia** e exportação em **Excel** e CSV. `npm run dev` sobe API e telas juntas
+em http://127.0.0.1:5173.
+
+**Instalação em outro computador.** A pasta `instalador/` tem um instalador
+para Windows: copie o projeto para a outra máquina e rode o `Instalar.bat`.
+Ver [`docs/instalar-em-outro-notebook.md`](./docs/instalar-em-outro-notebook.md).
 
 **Marco 1 — apuração portada para Postgres.** Concluído e validado: a
 importação reproduz a tabela do `CLAUDE.md` com os números lidos de volta do
@@ -136,6 +141,16 @@ O código do colaborador precisa ser o mesmo do campo "Tra. No." do arquivo do
 relógio. Quem não estiver cadastrado apura horas normalmente, mas com valor
 zero — a tela de importação avisa quem ficou de fora.
 
+**Esqueceu de bater o ponto?** No relatório, aba *Detalhe diário*, o lápis ao
+lado do dia abre as batidas daquela pessoa: dá para incluir a que faltou ou
+remover a duplicada. O dia e o fechamento se refazem na hora. O modal mostra
+qual batida ficou sem par, que é a que faz as horas saírem a menor.
+
+**Excel.** O botão *Baixar Excel* gera uma planilha com a aba de fechamento
+(colunas na ordem da especificação, moeda formatada e totais em fórmula) e a
+aba de detalhe diário. Os botões de CSV continuam, com separador `;` e vírgula
+decimal.
+
 > **Ainda não há login.** Enquanto a autenticação própria não existir, o
 > servidor escuta só em `127.0.0.1` e não deve ser exposto na rede.
 
@@ -189,6 +204,7 @@ MANTER_LOTE=1 npm run validar amostras/Registo_de_comparec_.txt   # Linux, macOS
 | `docs/marco-1-validacao.md` | Relato da validação do marco 1 |
 | `docs/correcoes-secao-6.md` | Relato das correções da seção 6 |
 | `docs/como-rodar-no-windows.md` | Passo a passo do zero, para Windows |
+| `docs/instalar-em-outro-notebook.md` | Instalar em outra máquina |
 | `drizzle/schema.ts` | Schema Postgres |
 | `drizzle/migrations/` | Migration + journal do drizzle-kit |
 | `src/server/timesheetParser.ts` | Parser e apuração — portado byte a byte |
@@ -199,7 +215,10 @@ MANTER_LOTE=1 npm run validar amostras/Registo_de_comparec_.txt   # Linux, macOS
 | `src/server/routers.ts` | API tRPC: colaboradores, importação, relatório |
 | `src/server/index.ts` | Servidor Express (Vite embutido em desenvolvimento) |
 | `src/server/storage/` | Acesso a arquivos atrás de interface, em disco local |
+| `src/server/edicaoDia.ts` | Edição manual das batidas e recálculo do dia |
+| `src/server/planilha.ts` | Geração do arquivo Excel |
 | `src/client/` | Telas: Lotes, Colaboradores, Importar e Relatório |
+| `instalador/` | Instalador e atalho para Windows |
 | `scripts/validar.ts` | Script do `npm run validar` |
 | `amostras/` | TXT do relógio e CSV de fechamento reais |
 | `referencia/` | Documentação e código do sistema original. Leitura, não alvo. |
@@ -214,8 +233,6 @@ e senha com hash e sessão em cookie httpOnly, e o schema já tem a tabela
 
 Falta também o **CRUD de ajustes do período** (descontos e acréscimos): o
 cálculo já lê `period_adjustments` e já soma na conta, então falta só a tela.
-E a **edição manual de batidas** direto no relatório — hoje fechar um dia em
-aberto ainda precisa de SQL.
 
 A correção **6.1** continua bloqueada por decisão de negócio, e a 6.3 tornou o
 caso menos visível — ver o alerta em

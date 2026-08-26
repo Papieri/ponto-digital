@@ -16,10 +16,14 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { appRouter } from "./routers";
 import { createContext } from "./trpc";
 import { closeDb } from "./db";
+import { gerarPlanilhaFechamento } from "./planilha";
 
 const PORTA = Number(process.env.PORT ?? 5173);
 const HOST = process.env.HOST ?? "127.0.0.1";
-const producao = process.env.NODE_ENV === "production";
+// `NODE_ENV=x comando` é sintaxe de shell Unix e não funciona no PowerShell.
+// O modo vem por parâmetro, que funciona igual em todo sistema.
+const producao =
+  process.argv.includes("--producao") || process.env.NODE_ENV === "production";
 const raiz = path.resolve(import.meta.dirname, "../..");
 
 async function main() {
@@ -29,6 +33,29 @@ async function main() {
   app.use(express.json({ limit: "25mb" }));
 
   app.get("/api/saude", (_req, res) => res.json({ ok: true }));
+
+  // Download da planilha. Fica fora do tRPC porque devolve binário.
+  app.get("/api/lote/:id/planilha.xlsx", async (req, res) => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) {
+      res.status(400).json({ erro: "Lote inválido." });
+      return;
+    }
+    try {
+      const { nomeArquivo, conteudo } = await gerarPlanilhaFechamento(id);
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
+      res.setHeader("Content-Disposition", `attachment; filename="${nomeArquivo}"`);
+      res.send(conteudo);
+    } catch (erro) {
+      console.error("[Planilha]", erro);
+      res.status(404).json({
+        erro: erro instanceof Error ? erro.message : "Falha ao gerar a planilha.",
+      });
+    }
+  });
 
   app.use(
     "/trpc",

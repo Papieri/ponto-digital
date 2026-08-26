@@ -15,7 +15,7 @@
  * Convenções (CLAUDE.md): todo acesso ao banco passa por aqui; nenhum router
  * consulta direto.
  */
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import {
@@ -176,6 +176,51 @@ export async function getTimeRecordsByBatch(batchId: number) {
     .orderBy(asc(timeRecords.recordedAt));
 }
 
+/**
+ * Batidas de um colaborador num dia. O recorte é pela data do registro, como no
+ * original.
+ *
+ * LIMITAÇÃO CONHECIDA, herdada: num turno que cruza a meia-noite, a apuração
+ * atribui a batida da madrugada ao dia anterior, mas esta consulta a devolve no
+ * dia em que foi registrada. Nenhuma amostra real exercita turno noturno.
+ */
+export async function getTimeRecordsByEmployeeAndDate(
+  batchId: number,
+  employeeCode: number,
+  workDate: string // YYYY-MM-DD
+) {
+  return getDb()
+    .select()
+    .from(timeRecords)
+    .where(
+      and(
+        eq(timeRecords.batchId, batchId),
+        eq(timeRecords.employeeCode, employeeCode),
+        gte(timeRecords.recordedAt, `${workDate} 00:00:00`),
+        lte(timeRecords.recordedAt, `${workDate} 23:59:59`)
+      )
+    )
+    .orderBy(asc(timeRecords.recordedAt));
+}
+
+export async function addTimeRecord(record: InsertTimeRecord) {
+  const result = await getDb().insert(timeRecords).values(record).returning();
+  return result[0]!;
+}
+
+export async function deleteTimeRecord(id: number) {
+  await getDb().delete(timeRecords).where(eq(timeRecords.id, id));
+}
+
+export async function getTimeRecordById(id: number) {
+  const result = await getDb()
+    .select()
+    .from(timeRecords)
+    .where(eq(timeRecords.id, id))
+    .limit(1);
+  return result[0] ?? undefined;
+}
+
 // ─── Daily Summaries ─────────────────────────────────────────────────────────
 
 export async function insertDailySummaries(summaries: InsertDailySummary[]) {
@@ -184,6 +229,35 @@ export async function insertDailySummaries(summaries: InsertDailySummary[]) {
   for (let i = 0; i < summaries.length; i += 500) {
     await db.insert(dailySummaries).values(summaries.slice(i, i + 500));
   }
+}
+
+export async function getDailySummaryByEmployeeAndDate(
+  batchId: number,
+  employeeCode: number,
+  workDate: string // YYYY-MM-DD
+) {
+  const result = await getDb()
+    .select()
+    .from(dailySummaries)
+    .where(
+      and(
+        eq(dailySummaries.batchId, batchId),
+        eq(dailySummaries.employeeCode, employeeCode),
+        gte(dailySummaries.workDate, `${workDate} 00:00:00`),
+        lte(dailySummaries.workDate, `${workDate} 23:59:59`)
+      )
+    )
+    .limit(1);
+  return result[0] ?? undefined;
+}
+
+export async function insertDailySummary(resumo: InsertDailySummary) {
+  const result = await getDb().insert(dailySummaries).values(resumo).returning();
+  return result[0]!;
+}
+
+export async function deleteDailySummary(id: number) {
+  await getDb().delete(dailySummaries).where(eq(dailySummaries.id, id));
 }
 
 export async function updateDailySummary(

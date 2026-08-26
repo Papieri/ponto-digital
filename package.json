@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "tsx watch src/server/index.ts",
     "build": "vite build",
-    "start": "NODE_ENV=production tsx src/server/index.ts",
+    "start": "tsx src/server/index.ts --producao",
     "test": "vitest run",
     "test:watch": "vitest",
     "check": "tsc --noEmit",
@@ -30,6 +30,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^17.2.2",
     "drizzle-orm": "^0.44.5",
+    "exceljs": "^4.4.0",
     "express": "^5.2.1",
     "lucide-react": "^1.34.0",
     "postgres": "^3.4.5",
