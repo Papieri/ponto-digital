@@ -52,6 +52,14 @@ winget install OpenJS.NodeJS.LTS
 winget install Git.Git
 ```
 
+> **Se o winget responder só `\` e voltar ao prompt sem instalar nada**, ele
+> está quebrado nessa máquina — acontece quando o "Instalador de Aplicativo"
+> está desatualizado ou ausente. Para confirmar, rode `winget search git`: se
+> não imprimir uma tabela de pacotes, é isso. Não gaste tempo consertando;
+> baixe pelos sites oficiais, que é o caminho de sempre:
+> [Node.js](https://nodejs.org/) · [Git](https://git-scm.com/download/win) ·
+> [PostgreSQL](https://www.postgresql.org/download/windows/).
+
 Para o banco, escolha **um** dos dois caminhos abaixo. Qualquer um serve: a
 migration é Postgres puro, sem recurso de fornecedor.
 
@@ -61,9 +69,19 @@ migration é Postgres puro, sem recurso de fornecedor.
 winget install PostgreSQL.PostgreSQL.16
 ```
 
-Durante a instalação ele pede uma senha para o usuário `postgres`. **Use
-`devlocal`** — é a que já está no `.env.example`, e assim nada mais precisa ser
-ajustado. Aceite o resto do padrão, inclusive a porta 5432.
+Sem winget, baixe pelo site: em
+[postgresql.org/download/windows](https://www.postgresql.org/download/windows/)
+clique em *Download the installer*, e na linha do **PostgreSQL 16**, coluna
+**Windows x86-64**, clique em *Download*. Rode o `.exe`.
+
+No instalador:
+
+- **Componentes:** mantenha *PostgreSQL Server* e *Command Line Tools*. O
+  *Stack Builder* pode desmarcar.
+- **Senha do usuário `postgres`:** use **`devlocal`** — é a que já está no
+  `.env.example`, e assim nada mais precisa ser ajustado.
+- **Porta:** deixe 5432.
+- No fim, se abrir o *Stack Builder*, pode cancelar.
 
 O Postgres vira um serviço do Windows e sobe sozinho com o computador. Não tem
 o "ligar o banco" do passo 4.
@@ -75,11 +93,11 @@ winget install Docker.DockerDesktop
 ```
 
 Exige WSL2 e virtualização habilitada na BIOS, e costuma pedir reinicialização
-do computador na primeira instalação.
+do computador na primeira instalação. É o caminho mais pesado dos dois — se a
+máquina não tiver Docker ainda, prefira o caminho A.
 
 > **Atenção ao nome do pacote:** é `Docker.DockerDesktop`. Com o nome errado, o
 > winget não acha nada e sai sem mensagem clara, parecendo que instalou.
-> Na dúvida, `winget search docker` lista os IDs disponíveis.
 
 Depois de instalar, **feche o PowerShell e abra de novo**. Sem isso ele não
 enxerga os programas novos. Aí repita o passo 1 para conferir.
@@ -245,7 +263,7 @@ npm run validar amostras/Registo_de_comparec_.txt
 | `port is already allocated` | Já existe algo na porta 5432 | `docker start ponto-db` — provavelmente o container já existe |
 | `Conflict. The container name "/ponto-db" is already in use` | O container já foi criado antes | `docker start ponto-db`, e siga do passo 5 |
 | `ECONNREFUSED 127.0.0.1:5432` | O banco não está no ar | Caminho B: `docker start ponto-db`. Caminho A: abra "Serviços" do Windows e veja se `postgresql-x64-16` está em execução |
-| `winget` responde `\` e volta ao prompt sem instalar nada | Nome do pacote errado | Confira com `winget search <nome>`. O do Docker é `Docker.DockerDesktop` |
+| `winget` responde `\` e volta ao prompt sem instalar nada | Ou o nome do pacote está errado, ou o winget está quebrado | Teste com `winget search git`: se não imprimir tabela, o winget está quebrado — baixe pelos sites oficiais. Se imprimir, era só o nome (o do Docker é `Docker.DockerDesktop`) |
 | `password authentication failed for user "postgres"` | A senha do Postgres não é a do `.env` | Ou reinstale usando `devlocal`, ou edite a `DATABASE_URL` no `.env` com a senha que você definiu |
 | `database "ponto" does not exist` | Faltou criar o banco | Refaça o passo 4 |
 | `DATABASE_URL não definida` | Faltou criar o `.env` | `cp .env.example .env` |
