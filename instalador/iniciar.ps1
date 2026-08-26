@@ -1,4 +1,4 @@
-# Sobe o Ponto Digital e abre o navegador. Fechar esta janela encerra o programa.
+﻿# Sobe o Ponto Digital e abre o navegador. Fechar esta janela encerra o programa.
 $ErrorActionPreference = "Stop"
 $raiz = Split-Path -Parent $PSScriptRoot
 Set-Location $raiz
@@ -14,7 +14,9 @@ Write-Host ""
 Write-Host "  Ponto Digital - Papieri" -ForegroundColor White
 Write-Host "  Iniciando..." -ForegroundColor DarkGray
 
-$app = Start-Process npm -ArgumentList "start" -PassThru -NoNewWindow
+# `npm` no Windows e npm.cmd: chamamos pelo cmd.exe para o Start-Process achar.
+$app = Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "npm start" `
+  -PassThru -NoNewWindow
 
 # Espera a porta responder antes de abrir o navegador.
 $pronto = $false

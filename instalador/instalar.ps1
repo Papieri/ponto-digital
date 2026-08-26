@@ -1,4 +1,4 @@
-# Instalador do Ponto Digital para Windows.
+﻿# Instalador do Ponto Digital para Windows.
 # Rode pelo Instalar.bat, que já cuida da política de execução do PowerShell.
 
 $ErrorActionPreference = "Stop"
@@ -29,7 +29,7 @@ Write-Host "  Ponto Digital - Papieri" -ForegroundColor White
 Write-Host "  Instalacao nesta maquina" -ForegroundColor DarkGray
 Write-Host "  Pasta: $raiz" -ForegroundColor DarkGray
 
-# ─── 1. Node.js ───────────────────────────────────────────────────────────────
+# --- 1. Node.js --------------------------------------------------
 Titulo "1 de 6  Node.js"
 
 if (Existe "node") {
@@ -54,14 +54,15 @@ if (Existe "node") {
   exit 1
 }
 
-# ─── 2. PostgreSQL ────────────────────────────────────────────────────────────
+# --- 2. PostgreSQL -----------------------------------------------
 Titulo "2 de 6  PostgreSQL"
 
 $pgRaiz = "C:\Program Files\PostgreSQL"
 $pgBin = $null
 if (Test-Path $pgRaiz) {
   $versaoPg = Get-ChildItem $pgRaiz -Directory -ErrorAction SilentlyContinue |
-    Sort-Object { [int]($_.Name -replace '\D', '0') } -Descending |
+    Where-Object { $_.Name -match '^\d+$' } |
+    Sort-Object { [int]$_.Name } -Descending |
     Select-Object -First 1
   if ($versaoPg) {
     $candidato = Join-Path $versaoPg.FullName "bin"
@@ -88,7 +89,7 @@ if (-not $pgBin) {
   exit 1
 }
 
-# ─── 3. Senha e banco ─────────────────────────────────────────────────────────
+# --- 3. Senha e banco --------------------------------------------
 Titulo "3 de 6  Banco de dados"
 
 Write-Host "  Digite a senha do usuario 'postgres' definida na instalacao do PostgreSQL."
@@ -116,20 +117,26 @@ if ($existe -eq "1") {
   Ok "Banco 'ponto' criado"
 }
 
-# ─── 4. Arquivo .env ──────────────────────────────────────────────────────────
+# --- 4. Arquivo .env ---------------------------------------------
 Titulo "4 de 6  Configuracao"
 
 # A senha vai dentro de uma URL: caracteres como @ e : precisam ser escapados.
 $senhaUrl = [uri]::EscapeDataString($senha)
-$env2 = @"
+$caminhoEnv = Join-Path $raiz ".env"
+if (Test-Path $caminhoEnv) {
+  Copy-Item $caminhoEnv "$caminhoEnv.anterior" -Force
+  Aviso "Ja existia um .env - copia guardada em .env.anterior"
+}
+
+$conteudoEnv = @"
 DATABASE_URL=postgres://postgres:$senhaUrl@localhost:5432/ponto
 UPLOAD_DIR=./uploads
 SESSION_SECRET=$([guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N'))
 "@
-Set-Content -Path (Join-Path $raiz ".env") -Value $env2 -Encoding UTF8
+Set-Content -Path $caminhoEnv -Value $conteudoEnv -Encoding UTF8
 Ok "Arquivo .env gravado"
 
-# ─── 5. Dependencias, tabelas e build ─────────────────────────────────────────
+# --- 5. Dependencias, tabelas e build ----------------------------
 Titulo "5 de 6  Instalando o programa"
 
 Push-Location $raiz
@@ -155,7 +162,7 @@ try {
 }
 Pop-Location
 
-# ─── 6. Atalho ────────────────────────────────────────────────────────────────
+# --- 6. Atalho ---------------------------------------------------
 Titulo "6 de 6  Atalho na area de trabalho"
 
 try {

@@ -22,6 +22,42 @@ telas e põe um atalho **Ponto Digital** na área de trabalho.
 
 ---
 
+## Testar o instalador na máquina que já está configurada
+
+Dá para rodar sem medo numa máquina que já foi preparada à mão: o instalador
+confere cada etapa antes de agir e não refaz o que já existe.
+
+```powershell
+cd $HOME\Documents\ponto-digital
+git pull
+```
+
+Depois abra a pasta `instalador` e dê dois cliques em **Instalar.bat**.
+
+O que você deve ver, nessa ordem:
+
+| Etapa | Esperado numa máquina já configurada |
+|---|---|
+| 1 Node.js | `[ok] Node v24...` |
+| 2 PostgreSQL | `[ok] PostgreSQL 18 em C:\Program Files\PostgreSQL\18\bin` |
+| 3 Banco | Pede a senha; depois `[ok] Conexao com o PostgreSQL` e `[ok] Banco 'ponto' ja existe` |
+| 4 Configuracao | `[!] Ja existia um .env - copia guardada em .env.anterior` e `[ok] Arquivo .env gravado` |
+| 5 Instalando | Baixa bibliotecas, cria tabelas, monta as telas |
+| 6 Atalho | `[ok] Atalho 'Ponto Digital' criado na area de trabalho` |
+
+O `.env` é regravado com a senha que você digitar; o anterior fica guardado
+como `.env.anterior`, então nada se perde. Os dados no banco não são tocados —
+os lotes já importados continuam lá.
+
+Em seguida teste o atalho **Ponto Digital** na área de trabalho: ele deve subir
+o programa e abrir o navegador sozinho. Fechar a janela preta encerra.
+
+> Para ver a experiência de primeira instalação de verdade — com Node e
+> PostgreSQL sendo baixados — é preciso uma máquina que ainda não os tenha.
+> Nesta aqui o instalador vai apenas reconhecer que já estão prontos.
+
+---
+
 ## O que o instalador faz
 
 | Etapa | O que acontece |
