@@ -166,6 +166,12 @@ Em `amostras/` há material real de produção:
 Qualquer divergência aqui depois da migração significa que o tratamento de fuso quebrou.
 Confira antes de seguir.
 
+> **Atenção — esta tabela é o marco da PORTABILIDADE, anterior às correções.**
+> A correção 6.3 (último dia do export) mudou a coluna "Dias c/ problema" para
+> 0 · 1 · 0 · 0 · 0 · 0: em 24/08 o arquivo termina no meio da manhã e Elaine,
+> Raquel e Ketlen têm uma batida só. Dias e horas seguem idênticos. Detalhes em
+> `docs/correcoes-secao-6.md`. Não é regressão de fuso.
+
 **`fechamento_15-07-2026_31-07-2026.csv`** — saída real do sistema antigo, com as colunas
 manuais já preenchidas. Serve para validar as contas de dinheiro e o arredondamento.
 

@@ -21,13 +21,14 @@ import {
   getPayrollPeriodsByBatch,
   getTimeRecordsByBatch,
 } from "../src/server/db";
-import { importarConteudoTxt } from "../src/server/importarPonto";
+import { importarConteudoTxt, recalcularValores } from "../src/server/importarPonto";
 import {
   formatMinutes,
   groupByEmployeeAndDay,
   toMysqlUtcString,
   type ParsedRecord,
 } from "../src/server/timesheetParser";
+import { aplicarCorrecaoExportTruncado } from "../src/server/correcoes";
 
 /** Converte a string 'YYYY-MM-DD HH:MM:SS' do banco em Date, tratando como UTC. */
 function stringUtcParaDate(s: string): Date {
@@ -67,26 +68,88 @@ async function main() {
 
   console.log(`Arquivo   : ${caminho}`);
   console.log(`Lote      : #${resultado.batchId}`);
-  console.log(`Período   : ${resultado.periodStart} a ${resultado.periodEnd} (UTC)`);
+  console.log(
+    `Período   : ${resultado.periodStart} a ${resultado.periodEnd} (UTC)` +
+      ` — ${resultado.periodConfirmed ? "confirmado pelo operador" : "sugerido pelo arquivo (6.2)"}`
+  );
   console.log(`Registros : ${resultado.totalRecords}`);
   console.log(`Fuso do processo: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`);
   console.log();
 
   // ── Tabela, lida de volta do banco ─────────────────────────────────────────
   const periodos = await getPayrollPeriodsByBatch(resultado.batchId);
+  const brl = (v: string) =>
+    parseFloat(v).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+
   console.log(
     tabela(
-      ["Cód", "Nome", "Dias", "Total", "Dias c/ problema"],
+      [
+        "Cód", "Nome", "Dias", "Total", "Dias c/ problema", "Status",
+        "Total por Hora", "Total Passagem", "Valor Total", "VALOR A PAGAR",
+      ],
       periodos.map((p) => [
         String(p.employeeCode),
         p.employeeName,
         String(p.workedDays),
         formatMinutes(p.totalMinutes),
         String(p.missingDays),
+        p.status,
+        brl(p.totalByHour),
+        brl(p.transportTotal),
+        brl(p.totalValue),
+        brl(p.amountToPay),
       ])
     )
   );
   console.log();
+
+  // ── 6.4 · dias em aberto ───────────────────────────────────────────────────
+  if (resultado.diasEmAberto.length === 0) {
+    console.log("Dias em aberto (6.4): nenhum — fechamento liberado.");
+  } else {
+    console.log(
+      `Dias em aberto (6.4): ${resultado.diasEmAberto.length} — fechamento exige confirmação explícita.`
+    );
+    for (const d of resultado.diasEmAberto) {
+      console.log(
+        `  ! ${d.employeeName} em ${d.workDate}: ${d.recordCount} batidas — ${d.issueDescription}`
+      );
+    }
+  }
+
+  // ── 6.3 · dias reclassificados como export truncado ────────────────────────
+  const truncados = resultado.dias.filter((d) => d.exportTruncado);
+  if (truncados.length > 0) {
+    console.log(
+      `\nÚltimo dia do export (6.3): ${truncados.length} dia(s) reclassificado(s), ` +
+        `sem alarme de batida faltando.`
+    );
+    for (const d of truncados) {
+      console.log(`  · ${d.employeeName} em ${d.workDate}: ${d.records.length} batida(s)`);
+    }
+  }
+  console.log();
+
+  // ── 6.5 · recálculo é idempotente e não apaga nada ─────────────────────────
+  const antes = periodos.map((p) => ({ ...p }));
+  const recalc = await recalcularValores(resultado.batchId);
+  const depois = await getPayrollPeriodsByBatch(resultado.batchId);
+  const recalcIgual =
+    antes.length === depois.length &&
+    antes.every((a, i) => {
+      const d = depois[i]!;
+      return (
+        a.employeeCode === d.employeeCode &&
+        a.workedDays === d.workedDays &&
+        a.totalMinutes === d.totalMinutes &&
+        a.totalValue === d.totalValue &&
+        a.amountToPay === d.amountToPay
+      );
+    });
+  console.log(
+    `Recalcular valores (6.5): ${recalc.colaboradoresAtualizados} colaborador(es), ` +
+      `resultado ${recalcIgual ? "idêntico" : "DIFERENTE"} ao da importação.`
+  );
 
   // ── Conferência de ida e volta ─────────────────────────────────────────────
   // 1. As batidas relidas do Postgres são idênticas às que o parser produziu?
@@ -106,7 +169,11 @@ async function main() {
     recordedAt: stringUtcParaDate(b.recordedAt),
     machineNo: b.machineNo ?? "1",
   }));
-  const gruposDoBanco = groupByEmployeeAndDay(reconstituidos);
+  // As mesmas correções da importação, para comparar igual com igual: sem a
+  // 6.3 aqui, os dias truncados voltariam a contar como problema.
+  const gruposDoBanco = aplicarCorrecaoExportTruncado(
+    groupByEmployeeAndDay(reconstituidos)
+  );
 
   const refeito = new Map<number, { dias: number; minutos: number; problemas: number }>();
   for (const g of gruposDoBanco) {
@@ -153,7 +220,7 @@ async function main() {
   }
 
   await closeDb();
-  if (!batidasIguais || divergencias.length > 0) process.exit(1);
+  if (!batidasIguais || divergencias.length > 0 || !recalcIgual) process.exit(1);
 }
 
 main().catch(async (err) => {

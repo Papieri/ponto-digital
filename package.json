@@ -13,7 +13,8 @@
     "check": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "validar": "tsx scripts/validar.ts"
+    "validar": "tsx scripts/validar.ts",
+    "seed:colaboradores": "tsx scripts/seed-colaboradores.ts"
   },
   "dependencies": {
     "dotenv": "^17.2.2",

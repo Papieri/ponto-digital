@@ -28,6 +28,7 @@ import {
   employees,
   importBatches,
   payrollPeriods,
+  periodAdjustments,
   timeRecords,
 } from "../../drizzle/schema";
 
@@ -180,6 +181,13 @@ export async function insertDailySummaries(summaries: InsertDailySummary[]) {
   }
 }
 
+export async function updateDailySummary(
+  id: number,
+  data: Partial<InsertDailySummary>
+) {
+  await getDb().update(dailySummaries).set(data).where(eq(dailySummaries.id, id));
+}
+
 export async function getDailySummariesByBatch(batchId: number) {
   return getDb()
     .select()
@@ -237,4 +245,36 @@ export async function getPayrollPeriodSummary(batchId: number) {
     })
     .from(payrollPeriods)
     .where(eq(payrollPeriods.batchId, batchId));
+}
+
+// ─── Period Adjustments ──────────────────────────────────────────────────────
+
+/**
+ * Descontos e acréscimos do lote. O CRUD é da Fase 3; a leitura já existe
+ * porque o VALOR A PAGAR depende deles — sem lote de ajustes, soma zero.
+ */
+export async function getPeriodAdjustmentsByBatch(batchId: number) {
+  return getDb()
+    .select()
+    .from(periodAdjustments)
+    .where(eq(periodAdjustments.batchId, batchId))
+    .orderBy(asc(periodAdjustments.employeeCode));
+}
+
+// ─── Atualização de fechamento (correção 6.5) ────────────────────────────────
+
+export async function updatePayrollPeriodForEmployee(
+  batchId: number,
+  employeeCode: number,
+  data: Partial<InsertPayrollPeriod>
+) {
+  await getDb()
+    .update(payrollPeriods)
+    .set(data)
+    .where(
+      and(
+        eq(payrollPeriods.batchId, batchId),
+        eq(payrollPeriods.employeeCode, employeeCode)
+      )
+    );
 }
