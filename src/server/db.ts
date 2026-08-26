@@ -118,6 +118,11 @@ export async function upsertEmployee(data: InsertEmployee) {
   return result[0]!;
 }
 
+/** Baixa lógica, como no original: o histórico dos lotes precisa do cadastro. */
+export async function deleteEmployee(id: number) {
+  await getDb().update(employees).set({ active: false }).where(eq(employees.id, id));
+}
+
 // ─── Import Batches ──────────────────────────────────────────────────────────
 
 export async function createImportBatch(data: InsertImportBatch) {

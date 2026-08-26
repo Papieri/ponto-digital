@@ -1,21 +1,23 @@
 {
-  "include": ["src/**/*", "scripts/**/*", "drizzle/**/*"],
+  "include": ["src/**/*", "scripts/**/*", "drizzle/**/*", "*.config.ts"],
   "exclude": ["node_modules", "dist", "referencia"],
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["esnext"],
+    "lib": ["esnext", "dom", "dom.iterable"],
     "types": ["node"],
+    "jsx": "react-jsx",
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@drizzle/*": ["./drizzle/*"]
+      "@/*": ["./src/client/*"]
     }
   }
 }

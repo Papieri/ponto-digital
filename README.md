@@ -13,9 +13,14 @@ infraestrutura própria — MySQL/TiDB sai, Postgres entra.
 
 ## Estado atual
 
+**Aplicação com telas.** Cadastro de colaboradores, importação do TXT e
+relatório de fechamento com os valores por pessoa. `npm run dev` sobe API e
+telas juntas em http://127.0.0.1:5173.
+
 **Marco 1 — apuração portada para Postgres.** Concluído e validado: a
 importação reproduz a tabela do `CLAUDE.md` com os números lidos de volta do
-banco, em quatro fusos diferentes. Relato em
+banco, em quatro fusos diferentes, e confirmado numa máquina Windows com
+PostgreSQL 18 em UTC−3. Relato em
 [`docs/marco-1-validacao.md`](./docs/marco-1-validacao.md).
 
 **Correções da seção 6 — 6.2, 6.3, 6.4 e 6.5.** Implementadas como camada
@@ -117,7 +122,24 @@ Linux o comando acima funciona como está.
 npm run db:migrate
 ```
 
-### 4. Testes e validação
+### 4. Subir a aplicação
+
+```powershell
+npm run dev
+```
+
+Abra **http://127.0.0.1:5173**. O fluxo é: **Colaboradores** (cadastre com os
+valores individuais) → **Importar Ponto** (envie o TXT e confirme o período) →
+**Relatório de Fechamento**.
+
+O código do colaborador precisa ser o mesmo do campo "Tra. No." do arquivo do
+relógio. Quem não estiver cadastrado apura horas normalmente, mas com valor
+zero — a tela de importação avisa quem ficou de fora.
+
+> **Ainda não há login.** Enquanto a autenticação própria não existir, o
+> servidor escuta só em `127.0.0.1` e não deve ser exposto na rede.
+
+### 5. Conferência pela linha de comando
 
 ```powershell
 npm test
@@ -146,6 +168,9 @@ MANTER_LOTE=1 npm run validar amostras/Registo_de_comparec_.txt   # Linux, macOS
 
 | Comando | O que faz |
 |---|---|
+| `npm run dev` | Sobe API e telas em http://127.0.0.1:5173 |
+| `npm run build` | Gera o frontend em `dist/client` |
+| `npm start` | Roda em produção, servindo o frontend já construído |
 | `npm test` | Vitest. Os testes de banco são ignorados sem `DATABASE_URL`. |
 | `npm run check` | `tsc --noEmit` |
 | `npm run db:generate` | Gera migration a partir de `drizzle/schema.ts` |
@@ -171,6 +196,10 @@ MANTER_LOTE=1 npm run validar amostras/Registo_de_comparec_.txt   # Linux, macOS
 | `src/server/correcoes.ts` | Correções 6.2, 6.3, 6.4 e o ponto de decisão da 6.1 |
 | `src/server/calculo.ts` | Regras de valor e arredondamento |
 | `src/server/importarPonto.ts` | Pipeline de importação e o recálculo da 6.5 |
+| `src/server/routers.ts` | API tRPC: colaboradores, importação, relatório |
+| `src/server/index.ts` | Servidor Express (Vite embutido em desenvolvimento) |
+| `src/server/storage/` | Acesso a arquivos atrás de interface, em disco local |
+| `src/client/` | Telas: Lotes, Colaboradores, Importar e Relatório |
 | `scripts/validar.ts` | Script do `npm run validar` |
 | `amostras/` | TXT do relógio e CSV de fechamento reais |
 | `referencia/` | Documentação e código do sistema original. Leitura, não alvo. |
@@ -179,9 +208,14 @@ MANTER_LOTE=1 npm run validar amostras/Registo_de_comparec_.txt   # Linux, macOS
 
 ## O que ainda não existe
 
-Telas, autenticação própria, storage de arquivos, o CRUD de ajustes do período
-e a exportação CSV no formato novo. O cálculo já consome `period_adjustments`,
-então o CRUD é só a interface.
+**Autenticação própria** — é a lacuna que importa. A especificação prevê e-mail
+e senha com hash e sessão em cookie httpOnly, e o schema já tem a tabela
+`users`, mas nada disso foi construído. Enquanto isso, rode só em localhost.
+
+Falta também o **CRUD de ajustes do período** (descontos e acréscimos): o
+cálculo já lê `period_adjustments` e já soma na conta, então falta só a tela.
+E a **edição manual de batidas** direto no relatório — hoje fechar um dia em
+aberto ainda precisa de SQL.
 
 A correção **6.1** continua bloqueada por decisão de negócio, e a 6.3 tornou o
 caso menos visível — ver o alerta em
