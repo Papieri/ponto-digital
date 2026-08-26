@@ -1,0 +1,30 @@
+{
+  "name": "ponto-digital",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Fechamento quinzenal de horas de freelancers — Papieri. Marco 1: apuração portada para Postgres.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "validar": "tsx scripts/validar.ts"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.2",
+    "drizzle-orm": "^0.44.5",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.7.0",
+    "drizzle-kit": "^0.31.4",
+    "tsx": "^4.19.1",
+    "typescript": "5.9.3",
+    "vitest": "^2.1.4"
+  }
+}

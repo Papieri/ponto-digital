@@ -1,0 +1,1 @@
+ALTER TABLE `time_records` ADD `isManual` boolean DEFAULT false;

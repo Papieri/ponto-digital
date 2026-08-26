@@ -1,0 +1,21 @@
+{
+  "include": ["src/**/*", "scripts/**/*", "drizzle/**/*"],
+  "exclude": ["node_modules", "dist", "referencia"],
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["esnext"],
+    "types": ["node"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@drizzle/*": ["./drizzle/*"]
+    }
+  }
+}
