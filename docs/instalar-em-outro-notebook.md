@@ -106,6 +106,7 @@ contra o banco novo.
 | `Node nao encontrado` e o winget não funciona | Instale de https://nodejs.org/ e rode o `Instalar.bat` de novo |
 | `PostgreSQL nao encontrado` e o winget não funciona | Instale de https://www.postgresql.org/download/windows/, anote a senha, e rode o instalador de novo |
 | `Nao consegui conectar no PostgreSQL com essa senha` | Rode de novo e informe a senha definida na instalação do PostgreSQL |
+| O programa nao reflete a atualizacao, mesmo apos `git pull` e `npm run build` | Uma instancia antiga ficou rodando e segura a porta 5173, servindo a versao velha. Feche todas as janelas pretas, ou rode `Get-Process node | Stop-Process -Force`, e abra pelo atalho. Cache do navegador nao tem nada a ver — ate janela anonima mostra a versao velha |
 | O atalho abre e fecha na hora | Abra o `Ponto Digital.bat` direto pela pasta `instalador` para ler a mensagem de erro |
 | `O programa demorou a responder` | Abra os Serviços do Windows e verifique se o serviço `postgresql` está em execução |
 

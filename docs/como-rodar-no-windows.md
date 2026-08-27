@@ -336,6 +336,7 @@ npm run validar amostras/Registo_de_comparec_.txt
 | `O termo '...createdb.exe' não é reconhecido` ou caminho inexistente | A pasta da versão é outra | `Get-ChildItem "C:\Program Files\PostgreSQL"` mostra o número certo |
 | `database "ponto" does not exist` | Faltou criar o banco | Refaça o passo 4 |
 | `DATABASE_URL não definida` | Faltou criar o `.env` | `cp .env.example .env` |
+| O programa parece nao ter atualizado, mesmo apos `git pull` e `npm run build` | Sobrou uma instancia antiga rodando, segurando a porta 5173 e servindo a versao velha | `Get-Process node | Stop-Process -Force`, depois abra pelo atalho. Nao adianta limpar cache nem usar janela anonima: nao e o navegador, e outro servidor respondendo |
 | Acentos embaralhados na tela (`PrivilÚgios`, `Perìodo`) | Página de código antiga do console | `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8`. Só a exibição é afetada, os dados estão certos |
 | `fatal: repository not found` | Login do GitHub sem acesso ao repositório | Confirme que entrou com a conta que tem acesso ao `Papieri/ponto-digital` |
 | `\` sozinho numa linha e o cursor esperando | Comando colado com quebra de linha do Linux | Aperte Ctrl+C e cole o comando em uma linha só |
