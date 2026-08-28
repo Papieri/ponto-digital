@@ -20,6 +20,11 @@ telas e põe um atalho **Ponto Digital** na área de trabalho.
 3. **Abra pelo atalho.** Ele sobe o programa e abre o navegador sozinho.
    Fechar a janela preta encerra o programa.
 
+Clicar no atalho com o programa já aberto não reinicia nada: ele só abre o
+navegador de novo. A exceção é quando a versão em execução está velha — aí ele
+encerra a antiga e sobe a atual, senão você continuaria vendo a versão anterior
+sem perceber.
+
 ---
 
 ## Testar o instalador na máquina que já está configurada
@@ -67,7 +72,7 @@ o programa e abrir o navegador sozinho. Fechar a janela preta encerra.
 | 3 | Pede a senha do usuário `postgres` e cria o banco `ponto` |
 | 4 | Grava o `.env` com a senha já escapada para a URL |
 | 5 | Baixa as bibliotecas, cria as tabelas e monta as telas |
-| 6 | Cria o atalho na área de trabalho |
+| 6 | Cria o atalho na área de trabalho, com o ícone do programa |
 
 Ele confere a senha antes de seguir, para não falhar lá na frente. Se algo
 faltar e o winget não funcionar, ele diz exatamente o que baixar e para —

@@ -1,7 +1,11 @@
-﻿# Sobe o Ponto Digital e abre o navegador. Fechar esta janela encerra o programa.
+﻿# Sobe o Ponto Digital e abre o navegador.
+# Fechar esta janela encerra o programa.
+
 $ErrorActionPreference = "Stop"
 $raiz = Split-Path -Parent $PSScriptRoot
 Set-Location $raiz
+
+$URL = "http://127.0.0.1:5173"
 
 if (-not (Test-Path (Join-Path $raiz ".env"))) {
   Write-Host "  Este computador ainda nao foi preparado." -ForegroundColor Red
@@ -13,17 +17,41 @@ if (-not (Test-Path (Join-Path $raiz ".env"))) {
 Write-Host ""
 Write-Host "  Ponto Digital - Papieri" -ForegroundColor White
 
-# Uma instancia antiga segurando a porta serve a versao ANTIGA do programa: o
-# novo processo nao consegue assumir a porta, morre, e o navegador continua
-# conversando com o velho. Some ate em janela anonima, porque nao e cache do
-# navegador - e outro servidor respondendo. Por isso derrubamos antes de subir.
-$ocupada = Get-NetTCPConnection -LocalPort 5173 -State Listen -ErrorAction SilentlyContinue
-if ($ocupada) {
-  Write-Host "  Ja havia uma instancia aberta. Encerrando para subir a versao atual..." -ForegroundColor Yellow
-  foreach ($conexao in $ocupada) {
-    try { Stop-Process -Id $conexao.OwningProcess -Force -ErrorAction Stop } catch { }
+# Versao do codigo que esta na pasta agora.
+function VersaoDaPasta {
+  try { return (git rev-parse --short HEAD 2>$null).Trim() } catch { return "" }
+}
+
+# Versao que o programa em execucao esta servindo, se houver algum.
+function VersaoEmExecucao {
+  try {
+    $r = Invoke-WebRequest -Uri "$URL/api/saude" -UseBasicParsing -TimeoutSec 2
+    return ($r.Content | ConvertFrom-Json).versao.commit
+  } catch { return $null }
+}
+
+# Ja tem um Ponto Digital aberto? Se for a versao atual, aproveitamos: derrubar
+# fecharia o programa que a pessoa talvez esteja usando. Se for versao antiga,
+# derrubamos - senao ela continuaria vendo a versao anterior sem perceber, que
+# e o engano mais facil de cometer aqui.
+$emExecucao = VersaoEmExecucao
+if ($emExecucao) {
+  $daPasta = VersaoDaPasta
+  if ($daPasta -and $emExecucao -ne "desconhecida" -and $emExecucao -ne $daPasta) {
+    Write-Host "  Havia uma versao antiga aberta ($emExecucao). Encerrando..." -ForegroundColor Yellow
+    $conexoes = Get-NetTCPConnection -LocalPort 5173 -State Listen -ErrorAction SilentlyContinue
+    foreach ($c in $conexoes) {
+      try { Stop-Process -Id $c.OwningProcess -Force -ErrorAction Stop } catch { }
+    }
+    Start-Sleep -Seconds 2
+  } else {
+    Write-Host "  O programa ja esta aberto. Abrindo no navegador..." -ForegroundColor Green
+    Start-Process $URL
+    Write-Host ""
+    Write-Host "  Esta janela pode ser fechada - o programa segue rodando na outra." -ForegroundColor DarkGray
+    Start-Sleep -Seconds 4
+    exit 0
   }
-  Start-Sleep -Seconds 2
 }
 
 Write-Host "  Iniciando..." -ForegroundColor DarkGray
@@ -39,15 +67,15 @@ foreach ($i in 1..40) {
   Start-Sleep -Milliseconds 500
   if ($app.HasExited) { break }
   try {
-    Invoke-WebRequest -Uri "http://127.0.0.1:5173/api/saude" -UseBasicParsing -TimeoutSec 2 | Out-Null
+    Invoke-WebRequest -Uri "$URL/api/saude" -UseBasicParsing -TimeoutSec 2 | Out-Null
     $pronto = $true
     break
   } catch { }
 }
 
 if ($pronto) {
-  Start-Process "http://127.0.0.1:5173"
-  Write-Host "  Aberto em http://127.0.0.1:5173" -ForegroundColor Green
+  Start-Process $URL
+  Write-Host "  Aberto em $URL" -ForegroundColor Green
 } elseif ($app.HasExited) {
   Write-Host "  O programa nao conseguiu subir." -ForegroundColor Red
   Write-Host "  Rode 'npm start' na pasta do projeto para ver a mensagem de erro." -ForegroundColor Red

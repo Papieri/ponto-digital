@@ -172,6 +172,8 @@ try {
   $atalho.TargetPath = Join-Path $PSScriptRoot "Ponto Digital.bat"
   $atalho.WorkingDirectory = $raiz
   $atalho.Description = "Ponto Digital - Papieri"
+  $icone = Join-Path $PSScriptRoot "ponto-digital.ico"
+  if (Test-Path $icone) { $atalho.IconLocation = $icone }
   $atalho.Save()
   Ok "Atalho 'Ponto Digital' criado na area de trabalho"
 } catch {
