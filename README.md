@@ -204,6 +204,10 @@ npm install
 npm run build
 ```
 
+Outros comandos de diagnóstico estão em
+[`docs/comandos-especiais.md`](./docs/comandos-especiais.md), organizados por
+sintoma.
+
 Se a tela e o programa estiverem em versões diferentes — o que acontece quando
 falta o `npm run build`, ou quando sobrou um servidor antigo no ar — aparece uma
 tarja âmbar no topo dizendo exatamente isso. Enquanto ela não aparecer, o que
@@ -237,6 +241,7 @@ você vê na tela é o que está rodando.
 | `docs/correcoes-secao-6.md` | Relato das correções da seção 6 |
 | `docs/como-rodar-no-windows.md` | Passo a passo do zero, para Windows |
 | `docs/instalar-em-outro-notebook.md` | Instalar em outra máquina |
+| `docs/comandos-especiais.md` | Comandos para quando algo não funciona |
 | `drizzle/schema.ts` | Schema Postgres |
 | `drizzle/migrations/` | Migration + journal do drizzle-kit |
 | `src/server/timesheetParser.ts` | Parser e apuração — portado byte a byte |
