@@ -242,6 +242,7 @@ você vê na tela é o que está rodando.
 | `docs/como-rodar-no-windows.md` | Passo a passo do zero, para Windows |
 | `docs/instalar-em-outro-notebook.md` | Instalar em outra máquina |
 | `docs/comandos-especiais.md` | Comandos para quando algo não funciona |
+| `docs/Comandos-Especiais-Ponto-Digital.docx` | O mesmo, em Word, para imprimir |
 | `drizzle/schema.ts` | Schema Postgres |
 | `drizzle/migrations/` | Migration + journal do drizzle-kit |
 | `src/server/timesheetParser.ts` | Parser e apuração — portado byte a byte |

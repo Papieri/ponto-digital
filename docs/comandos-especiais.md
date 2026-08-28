@@ -1,5 +1,9 @@
 # Comandos especiais
 
+> Este arquivo é a fonte. A versão em Word
+> (`Comandos-Especiais-Ponto-Digital.docx`), para imprimir, é gerada a partir
+> dele — ao alterar aqui, peça a regeração para as duas não divergirem.
+
 Comandos para usar quando algo não funciona como esperado. Todos no
 **PowerShell** (não no Prompt de Comando).
 
