@@ -227,6 +227,8 @@ você vê na tela é o que está rodando.
 | `npm run db:generate` | Gera migration a partir de `drizzle/schema.ts` |
 | `npm run db:migrate` | Aplica as migrations pendentes |
 | `npm run seed:colaboradores` | Cadastra as taxas de amostra (fixture de desenvolvimento) |
+| `npm run it:capturar` | Refaz as capturas de tela da IT (precisa do sistema no ar) |
+| `npm run it:gerar` | Remonta o PDF da IT a partir das capturas |
 | `npm run validar <txt>` | Importa um TXT e imprime a apuração lida do banco |
 
 ---
@@ -243,6 +245,7 @@ você vê na tela é o que está rodando.
 | `docs/instalar-em-outro-notebook.md` | Instalar em outra máquina |
 | `docs/comandos-especiais.md` | Comandos para quando algo não funciona |
 | `docs/Comandos-Especiais-Ponto-Digital.docx` | O mesmo, em Word, para imprimir |
+| `docs/IT-FIN-02_Fechamento_Quinzenal_de_Ponto.pdf` | Instrução de trabalho, com as telas |
 | `drizzle/schema.ts` | Schema Postgres |
 | `drizzle/migrations/` | Migration + journal do drizzle-kit |
 | `src/server/timesheetParser.ts` | Parser e apuração — portado byte a byte |

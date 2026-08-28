@@ -17,7 +17,9 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "validar": "tsx scripts/validar.ts",
-    "seed:colaboradores": "tsx scripts/seed-colaboradores.ts"
+    "seed:colaboradores": "tsx scripts/seed-colaboradores.ts",
+    "it:capturar": "tsx scripts/capturar-telas.ts",
+    "it:gerar": "tsx scripts/gerar-it.ts capturas docs/IT-FIN-02_Fechamento_Quinzenal_de_Ponto.pdf"
   },
   "dependencies": {
     "@fontsource-variable/dm-sans": "^5.3.0",

@@ -4,3 +4,6 @@ uploads/
 .env
 .env.local
 *.log
+
+# Capturas da IT: geradas por `npm run it:capturar`
+capturas/
