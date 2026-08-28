@@ -183,6 +183,34 @@ MANTER_LOTE=1 npm run validar amostras/Registo_de_comparec_.txt   # Linux, macOS
 
 ---
 
+## Como saber se a versão está atualizada
+
+O rodapé da barra lateral mostra a versão que está na tela, por exemplo
+`versão 145cff3 · 28/08/2026`. Compare com o que está na sua pasta:
+
+```powershell
+cd $HOME\Documents\ponto-digital
+git fetch
+git log --oneline -1     # a versão que você tem
+git status -sb           # diz se está atrás do GitHub
+```
+
+`Your branch is up to date` quer dizer que a pasta está em dia. Se disser
+`behind by N commits`, falta atualizar:
+
+```powershell
+git pull
+npm install
+npm run build
+```
+
+Se a tela e o programa estiverem em versões diferentes — o que acontece quando
+falta o `npm run build`, ou quando sobrou um servidor antigo no ar — aparece uma
+tarja âmbar no topo dizendo exatamente isso. Enquanto ela não aparecer, o que
+você vê na tela é o que está rodando.
+
+---
+
 ## Scripts
 
 | Comando | O que faz |

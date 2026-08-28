@@ -18,6 +18,7 @@ import { createContext } from "./trpc";
 import { closeDb } from "./db";
 import { gerarPlanilhaFechamento } from "./planilha";
 import { gerarPdfFechamento } from "./pdf";
+import { VERSAO_SERVIDOR } from "./versao";
 
 const PORTA = Number(process.env.PORT ?? 5173);
 const HOST = process.env.HOST ?? "127.0.0.1";
@@ -33,7 +34,9 @@ async function main() {
   // O TXT de uma quinzena é pequeno, mas chega em base64 dentro do JSON.
   app.use(express.json({ limit: "25mb" }));
 
-  app.get("/api/saude", (_req, res) => res.json({ ok: true }));
+  app.get("/api/saude", (_req, res) =>
+    res.json({ ok: true, versao: VERSAO_SERVIDOR })
+  );
 
   app.get("/api/lote/:id/relatorio.pdf", async (req, res) => {
     const id = Number(req.params.id);
@@ -97,7 +100,12 @@ async function main() {
   }
 
   const servidor = app.listen(PORTA, HOST, () => {
-    console.log(`\n  Ponto Digital rodando em http://${HOST}:${PORTA}\n`);
+    console.log(`\n  Ponto Digital rodando em http://${HOST}:${PORTA}`);
+    console.log(
+      `  Versao ${VERSAO_SERVIDOR.commit}` +
+        (VERSAO_SERVIDOR.data ? ` de ${VERSAO_SERVIDOR.data}` : "") +
+        "\n"
+    );
   });
 
   for (const sinal of ["SIGINT", "SIGTERM"] as const) {
