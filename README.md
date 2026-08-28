@@ -146,10 +146,14 @@ lado do dia abre as batidas daquela pessoa: dá para incluir a que faltou ou
 remover a duplicada. O dia e o fechamento se refazem na hora. O modal mostra
 qual batida ficou sem par, que é a que faz as horas saírem a menor.
 
-**Excel.** O botão *Baixar Excel* gera uma planilha com a aba de fechamento
-(colunas na ordem da especificação, moeda formatada e totais em fórmula) e a
-aba de detalhe diário. Os botões de CSV continuam, com separador `;` e vírgula
-decimal.
+**PDF.** O botão *Baixar PDF* gera o relatório pronto para imprimir ou enviar à
+contabilidade: cartões totalizadores no topo, tabela do fechamento, linha de
+totais e rodapé com data de emissão e numeração de página. É gerado no
+servidor, não pela impressão do navegador, para sair igual em qualquer máquina.
+
+**Excel.** O botão *Excel* gera uma planilha com a aba de fechamento (colunas na
+ordem da especificação, moeda formatada e totais em fórmula) e a aba de detalhe
+diário. Os botões de CSV continuam, com separador `;` e vírgula decimal.
 
 > **Ainda não há login.** Enquanto a autenticação própria não existir, o
 > servidor escuta só em `127.0.0.1` e não deve ser exposto na rede.
@@ -217,6 +221,7 @@ MANTER_LOTE=1 npm run validar amostras/Registo_de_comparec_.txt   # Linux, macOS
 | `src/server/storage/` | Acesso a arquivos atrás de interface, em disco local |
 | `src/server/edicaoDia.ts` | Edição manual das batidas e recálculo do dia |
 | `src/server/planilha.ts` | Geração do arquivo Excel |
+| `src/server/pdf.ts` | Geração do relatório em PDF |
 | `src/client/` | Telas: Lotes, Colaboradores, Importar e Relatório |
 | `src/client/index.css` | Tipografia e cores. Leia antes de trocar a fonte. |
 | `instalador/` | Instalador e atalho para Windows |

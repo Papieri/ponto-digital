@@ -17,6 +17,7 @@ import {
   FileText,
   Info,
   Pencil,
+  FileDown,
   RefreshCw,
   Table2,
   XCircle,
@@ -196,11 +197,21 @@ export default function Relatorio() {
           <Button
             size="sm"
             onClick={() => {
+              window.location.href = `/api/lote/${batchId}/relatorio.pdf`;
+            }}
+          >
+            <FileDown className="h-4 w-4" />
+            Baixar PDF
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
               window.location.href = `/api/lote/${batchId}/planilha.xlsx`;
             }}
           >
             <Table2 className="h-4 w-4" />
-            Baixar Excel
+            Excel
           </Button>
           <Button variant="outline" size="sm" onClick={exportarResumo}>
             <Download className="h-4 w-4" />

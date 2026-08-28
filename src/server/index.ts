@@ -17,6 +17,7 @@ import { appRouter } from "./routers";
 import { createContext } from "./trpc";
 import { closeDb } from "./db";
 import { gerarPlanilhaFechamento } from "./planilha";
+import { gerarPdfFechamento } from "./pdf";
 
 const PORTA = Number(process.env.PORT ?? 5173);
 const HOST = process.env.HOST ?? "127.0.0.1";
@@ -33,6 +34,25 @@ async function main() {
   app.use(express.json({ limit: "25mb" }));
 
   app.get("/api/saude", (_req, res) => res.json({ ok: true }));
+
+  app.get("/api/lote/:id/relatorio.pdf", async (req, res) => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) {
+      res.status(400).json({ erro: "Lote inválido." });
+      return;
+    }
+    try {
+      const { nomeArquivo, conteudo } = await gerarPdfFechamento(id);
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="${nomeArquivo}"`);
+      res.send(conteudo);
+    } catch (erro) {
+      console.error("[PDF]", erro);
+      res.status(404).json({
+        erro: erro instanceof Error ? erro.message : "Falha ao gerar o PDF.",
+      });
+    }
+  });
 
   // Download da planilha. Fica fora do tRPC porque devolve binário.
   app.get("/api/lote/:id/planilha.xlsx", async (req, res) => {
